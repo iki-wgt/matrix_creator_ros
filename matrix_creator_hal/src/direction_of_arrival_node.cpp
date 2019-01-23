@@ -1,9 +1,11 @@
-#include <matrix_hal/wishbone_bus.h>
+#include "matrix_hal/matrixio_bus.h"
 #include <matrix_hal/microphone_array.h>
 #include <matrix_hal/direction_of_arrival.h>
 #include <matrix_hal/everloop.h>
 #include <matrix_hal/everloop_image.h>
 #include <matrix_hal/microphone_array_location.h>
+// Enables using FIR filter with microphone array
+#include "matrix_hal/microphone_core.h"
 
 #include <ros/node_handle.h>
 #include <ros/publisher.h>
@@ -73,16 +75,18 @@ int main(int argc, char** argv)
   ros::NodeHandle local_nh("~");
 
   //! Set-up Matrix HAL iface
-  matrix_hal::WishboneBus bus;
-  bus.SpiInit();
+  matrix_hal::MatrixIOBus bus;
+  if (!bus.Init()) return false;
 
   matrix_hal::MicrophoneArray mics;
   mics.Setup(&bus);
 
   matrix_hal::EverloopImage image1d;
   matrix_hal::Everloop everloop;
-  mics.SetGain(local_nh.param("gain", 2));
   everloop.Setup(&bus);
+  mics.SetGain(local_nh.param("gain", 2));
+  matrix_hal::MicrophoneCore microphone_core(mics);
+  microphone_core.Setup(&bus);
   matrix_hal::DirectionOfArrival doa(mics);
   doa.Init();
 
