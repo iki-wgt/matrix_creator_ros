@@ -80,6 +80,7 @@ int main(int argc, char** argv)
 
   matrix_hal::MicrophoneArray mics;
   mics.Setup(&bus);
+  mics.SetSamplingRate(local_nh.param("sampling_rate",8000));
 
   matrix_hal::EverloopImage image1d;
   matrix_hal::Everloop everloop;
@@ -87,6 +88,7 @@ int main(int argc, char** argv)
   mics.SetGain(local_nh.param("gain", 2));
   matrix_hal::MicrophoneCore microphone_core(mics);
   microphone_core.Setup(&bus);
+  microphone_core.SetFIRCoeff();
   matrix_hal::DirectionOfArrival doa(mics);
   doa.Init();
 
@@ -156,3 +158,4 @@ int main(int argc, char** argv)
   }
   return 0;
 }
+
